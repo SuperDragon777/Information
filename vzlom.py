@@ -4,6 +4,7 @@ import urllib.request as king # он тут главный (типо корол�
 import socket # этот шедевр для локального айпи
 import ssl # это для сертификатов, которые я ненавижу
 from time import sleep as wait # типо чтобы подождать
+import json # его пригласили чтоб с json работал
 
 def de_print(text, delay=0.07): # красивый принт
     for char in text:
@@ -11,25 +12,57 @@ def de_print(text, delay=0.07): # красивый принт
         wait(delay)
     print()
 
-def red(text):
+def red(text): # красный текст
     color = "\033[31m{}"
     output = color.format(text)
     return output
 
-def no_style():
+def no_style(): # обычный текст
     color = "\033[0m{}"
     output = color.format("")
     print(output, end="")
 
-def bold(text):
+def bold(text): # жирный текст
     color = "\033[1m{}"
     output = color.format(text)
     return output
 
-def underline(text):
+def underline(text): # подчеркнутый текст
     color = "\033[4m{}"
     output = color.format(text)
     return output
+
+def important(text): # красный + жирный
+    text = bold(text)
+    text = red(text)
+    return(text)
+
+def get_location_info(ip):
+    def get_ip_info(ip):
+        socket.inet_aton(ip)
+        url = f"http://ipapi.co/{ip}/json/"
+            
+        with king.urlopen(url) as response:
+            data = json.loads(response.read().decode())
+            
+        return data
+    
+    data = get_ip_info(ip) # получаю данные
+    
+    info_lines = [ # задаю каждую линия
+        f"Cтрана - {important(data.get('country_name', 'Неизвестно'))}",
+        f"Код страны - {important(data.get('country_code', 'Неизвестно'))}",
+        f"Город - {important(data.get('city', 'Неизвестно'))}",
+        f"Регион - {important(data.get('region', 'Неизвестно'))}",
+        f"Провайдер - {important(data.get('org', 'Неизвестно'))}",
+        f"Часовой пояс - {important(data.get('timezone', 'Неизвестно'))}",
+        f"Широта - {important(data.get('latitude', 'Неизвестно'))}",
+        f"Долгота - {important(data.get('longitude', 'Неизвестно'))}"
+    ]
+    
+    for line in info_lines: # печатаю каждую линия
+        de_print(line, 0.04)
+        no_style()
 
 def get_public_ip(): 
     http_services = [
@@ -130,7 +163,12 @@ if __name__ == "__main__":
         de_print(f"определил с помощью: {source}", 0.05)
         print(underline(" " * 50))
         no_style()
+        print("\n")
+        get_location_info(public_ip)
+        print(underline(" " * 50))
+        no_style()
         print("\n\n")
+        
     else:
         de_print(bold(red("не удалось определить :(")), 0.05)
         print("\nВозможные причины:")
