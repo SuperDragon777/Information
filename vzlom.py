@@ -50,6 +50,7 @@ def get_public_ip():
                     return ip, service # возвращаю данные
         except Exception: # чтобы не было ошибки
             de_print(bold(red("Неудачно")), 0.05)
+            no_style()
             continue
     
     """ дальше полное безумие с сертификатами """
@@ -65,7 +66,7 @@ def get_public_ip():
     
     for attempt, service in enumerate(https_services, 1):  # начинаю с 1
         try:
-            de_print(f"попытка определения {attempt} из {len(http_services)}", 0.05)
+            de_print(f"попытка определения {attempt} из {len(https_services)}", 0.05)
             # print(f"service - {service}")
             with king.urlopen(service, timeout=5, context=ssl_context) as response:
                 ip = response.read().decode('utf-8').strip()
@@ -73,6 +74,7 @@ def get_public_ip():
                     return ip, service + " (без проверки ненавистного сертификата SSL)" # возвращаю данные
         except Exception: # чтобы не было ошибки
             de_print(bold(red("Неудачно")), 0.05)
+            no_style()
             continue
     
     return None, None
